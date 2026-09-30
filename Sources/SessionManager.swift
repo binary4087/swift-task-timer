@@ -10,23 +10,42 @@ class SessionManager {
         completedSessions += 1
     }
 
-    func getNextIntervalDuration() -> Int {
-        if completedSessions > 0 && completedSessions % 4 == 0 {
-            return longBreakDuration
-        } else if completedSessions % 2 == 0 {
-            return workDuration
-        } else {
-            return shortBreakDuration
-        }
-    }
-
     func getCurrentSessionType() -> String {
-        if completedSessions == 0 || completedSessions % 2 == 0 {
+        // Logic: 
+        // 0 completed -> Work
+        // 1 completed -> Short Break
+        // 2 completed -> Work
+        // 3 completed -> Short Break
+        // 4 completed -> Work
+        // 5 completed -> Short Break
+        // 6 completed -> Work
+        // 7 completed -> Short Break
+        // 8 completed -> Long Break (After 4 work sessions)
+        
+        // Every session that starts when completedSessions is even is a Work session
+        if completedSessions % 2 == 0 {
             return "Work"
-        } else if completedSessions % 4 == 0 {
+        } 
+        
+        // If completedSessions is odd, it's a break. 
+        // A long break occurs after every 4th work session.
+        let breakNumber = (completedSessions + 1) / 2
+        if breakNumber % 4 == 0 {
             return "Long Break"
         } else {
             return "Short Break"
+        }
+    }
+
+    func getNextIntervalDuration() -> Int {
+        let type = getCurrentSessionType()
+        switch type {
+        case "Work":
+            return workDuration
+        case "Long Break":
+            return longBreakDuration
+        default:
+            return shortBreakDuration
         }
     }
 }
