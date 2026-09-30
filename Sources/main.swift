@@ -11,10 +11,10 @@ let workMin = parseArgument(at: 1, defaultValue: 25)
 let shortMin = parseArgument(at: 2, defaultValue: 5)
 let longMin = parseArgument(at: 3, defaultValue: 15)
 
-let manager = SessionManager(work: workMin * 60, short: shortMin * 60, long: longMin * 60)
+let manager = SessionManager(work: workMin, short: shortMin, long: longMin)
 
 print("Welcome to Swift Task Timer!")
-print("Settings: Work: \(workMin)m, Short: \(shortMin)m, Long: \(longMin)m")
+print("Settings: Work: \(workMin/60)m, Short: \(shortMin/60)m, Long: \(longMin/60)m")
 print("Press Ctrl+C to stop. Each session will be tracked.")
 
 while true {
@@ -29,6 +29,9 @@ while true {
         fflush(stdout)
     }, onComplete: {
         print("\n\(type) session complete!")
+        // Print ASCII Bell character to trigger system alert sound
+        print("\u{0007}", terminator: "")
+        fflush(stdout)
         manager.incrementSessions()
     })
     
