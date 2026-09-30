@@ -17,12 +17,19 @@ class SessionManager {
     }
 
     func getCurrentSessionType() -> String {
+        // Pomodoro pattern: Work, Break, Work, Break, Work, Break, Work, Long Break
+        // completedSessions represents how many intervals have finished.
+        // Sequence: 0:Work, 1:Short, 2:Work, 3:Short, 4:Work, 5:Short, 6:Work, 7:Long
+        
         if completedSessions % 2 == 0 {
             return "Work"
         }
         
-        let breakNumber = (completedSessions + 1) / 2
-        if breakNumber % 4 == 0 {
+        // It's a break. Check if it's the 4th work session's break.
+        // The 4th work session ends at index 7 (0,1,2,3,4,5,6,7)
+        // The breaks happen at indices 1, 3, 5, 7
+        let breakIndex = completedSessions
+        if (breakIndex + 1) % 8 == 0 {
             return "Long Break"
         } else {
             return "Short Break"
