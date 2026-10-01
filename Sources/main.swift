@@ -7,6 +7,13 @@ func parseArgument(at index: Int, defaultValue: Int) -> Int {
     return value * 60
 }
 
+if arguments.contains("--reset") {
+    let manager = SessionManager()
+    manager.resetSessions()
+    print("Session history has been reset.")
+    exit(0)
+}
+
 let workMin = parseArgument(at: 1, defaultValue: 25)
 let shortMin = parseArgument(at: 2, defaultValue: 5)
 let longMin = parseArgument(at: 3, defaultValue: 15)
@@ -15,7 +22,7 @@ let manager = SessionManager(work: workMin, short: shortMin, long: longMin)
 
 print("Welcome to Swift Task Timer!")
 print("Settings: Work: \(workMin/60)m, Short: \(shortMin/60)m, Long: \(longMin/60)m")
-print("Press Ctrl+C to stop. Each session will be tracked.")
+print("Use --reset to clear history. Press Ctrl+C to stop. Each session will be tracked.")
 
 while true {
     let duration = manager.getNextIntervalDuration()

@@ -19,13 +19,20 @@ class SessionManager {
         saveHistory()
     }
 
+    func resetSessions() {
+        completedSessions = 0
+        saveHistory()
+    }
+
     func getCurrentSessionType() -> String {
+        // Sessions follow a pattern: Work, Break, Work, Break... 
+        // Every 4th work session is followed by a Long Break.
         if completedSessions % 2 == 0 {
             return "Work"
         }
         
-        let breakIndex = completedSessions
-        if (breakIndex + 1) % 8 == 0 {
+        // Check if the work session just completed was a multiple of 4
+        if (completedSessions + 1) % 8 == 0 {
             return "Long Break"
         } else {
             return "Short Break"
