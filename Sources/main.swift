@@ -23,9 +23,10 @@ while true {
     
     print("\n--- Starting \(type) session: \(TimerLogic.formatTime(seconds: duration)) ---")
     
-    TimerLogic.countdown(seconds: duration, onTick: { remaining in
+    TimerLogic.countdown(seconds: duration, onTick: { remaining, progress in
         let timeStr = TimerLogic.formatTime(seconds: remaining)
-        print("\rTime remaining: \(timeStr)", terminator: "")
+        let bar = TimerLogic.generateProgressBar(progress: progress)
+        print("\r\(bar) Time remaining: \(timeStr)", terminator: "")
         fflush(stdout)
     }, onComplete: {
         print("\n\(type) session complete!")
