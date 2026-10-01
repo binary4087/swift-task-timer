@@ -5,29 +5,25 @@ class SessionManager {
     let workDuration: Int
     let shortBreakDuration: Int
     let longBreakDuration: Int
+    private let historyFile = "session_history.txt"
 
     init(work: Int = 25 * 60, short: Int = 5 * 60, long: Int = 15 * 60) {
         self.workDuration = work
         self.shortBreakDuration = short
         self.longBreakDuration = long
+        loadHistory()
     }
 
     func incrementSessions() {
         completedSessions += 1
+        saveHistory()
     }
 
     func getCurrentSessionType() -> String {
-        // Pomodoro pattern: Work, Break, Work, Break, Work, Break, Work, Long Break
-        // completedSessions represents how many intervals have finished.
-        // Sequence: 0:Work, 1:Short, 2:Work, 3:Short, 4:Work, 5:Short, 6:Work, 7:Long
-        
         if completedSessions % 2 == 0 {
             return "Work"
         }
         
-        // It's a break. Check if it's the 4th work session's break.
-        // The 4th work session ends at index 7 (0,1,2,3,4,5,6,7)
-        // The breaks happen at indices 1, 3, 5, 7
         let breakIndex = completedSessions
         if (breakIndex + 1) % 8 == 0 {
             return "Long Break"
@@ -45,6 +41,27 @@ class SessionManager {
             return longBreakDuration
         default:
             return shortBreakDuration
+        }
+    }
+
+    private func saveHistory() {
+        let data = "\(completedSessions)"
+        do {
+            try data.write(toFile: historyFile, atomically: true, encoding: .utf8)
+        } catch {
+            print("\nError saving session history: \(error)")
+        }
+    }
+
+    private func loadHistory() {
+        do {
+            let savedData = try String(contentsOfFile: historyFile, encoding: .utf8)
+            if let count = Int(savedData.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                self.completedSessions = count
+            }
+        } catch {
+            // File might not exist yet, which is fine
+            self.completedSessions = 0
         }
     }
 }
