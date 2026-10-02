@@ -22,11 +22,24 @@ let manager = SessionManager(work: workMin, short: shortMin, long: longMin)
 
 print("Welcome to Swift Task Timer!")
 print("Settings: Work: \(workMin/60)m, Short: \(shortMin/60)m, Long: \(longMin/60)m")
-print("Use --reset to clear history. Press Ctrl+C to stop. Each session will be tracked.")
+print("Use --reset to clear history, --work to force work, or --break to force break. Press Ctrl+C to stop.")
 
 while true {
-    let duration = manager.getNextIntervalDuration()
-    let type = manager.getCurrentSessionType()
+    var duration: Int
+    var type: String
+
+    if arguments.contains("--work") {
+        type = "Work"
+        duration = manager.getDuration(for: type)
+    } else if arguments.contains("--break") {
+        type = manager.getCurrentSessionType() == "Work" ? "Short Break" : manager.getCurrentSessionType()
+        // If current is work, force a short break. If already break, keep that type.
+        if type == "Work" { type = "Short Break" }
+        duration = manager.getDuration(for: type)
+    } else {
+        type = manager.getCurrentSessionType()
+        duration = manager.getNextIntervalDuration()
+    }
     
     print("\n--- Starting \(type) session: \(TimerLogic.formatTime(seconds: duration)) ---")
     
@@ -37,7 +50,6 @@ while true {
         fflush(stdout)
     }, onComplete: {
         print("\n\(type) session complete!")
-        // Print ASCII Bell character to trigger system alert sound
         print("\u{0007}", terminator: "")
         fflush(stdout)
         manager.incrementSessions()

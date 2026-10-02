@@ -25,31 +25,28 @@ class SessionManager {
     }
 
     func getCurrentSessionType() -> String {
-        // Pomodoro logic:
-        // If completedSessions is even, we are starting a Work session (0, 2, 4...)
-        // If completedSessions is odd, we are starting a Break session (1, 3, 5...)
+        // Sequence: Work -> Break -> Work -> Break -> Work -> Break -> Work -> Long Break
+        // Work sessions are indices 0, 2, 4, 6 (even)
+        // Break sessions are indices 1, 3, 5, 7 (odd)
         if completedSessions % 2 == 0 {
             return "Work"
         }
         
-        // Every 4th work session (which occurs after the 4th, 8th... work session completes)
-        // A work session is completed when completedSessions becomes odd (1, 3, 5, 7).
-        // Specifically, the 4th work session is completed when completedSessions becomes 7.
-        // Wait, let's simplify: 
-        // Work (0) -> Break (1) -> Work (2) -> Break (3) -> Work (4) -> Break (5) -> Work (6) -> Long Break (7)
-        // The work sessions are at indices 0, 2, 4, 6. 
-        // The 4th work session finishes at index 7.
-        
-        let workSessionsFinished = (completedSessions + 1) / 2
-        if workSessionsFinished % 4 == 0 {
+        // A Long Break occurs after every 4th work session.
+        // Work sessions are completed at indices 1, 3, 5, 7.
+        // The 4th work session is completed when completedSessions reaches 7 (odd).
+        // Wait, actually if completedSessions is odd, we are in a break.
+        // If we just finished the 4th work session (index 6), completedSessions is now 7.
+        // Every 8 total sessions (4 work + 4 break), we cycle. 
+        // Index 7 is the 4th break. Let's make the 4th break the Long Break.
+        if (completedSessions + 1) % 8 == 0 {
             return "Long Break"
         } else {
             return "Short Break"
         }
     }
 
-    func getNextIntervalDuration() -> Int {
-        let type = getCurrentSessionType()
+    func getDuration(for type: String) -> Int {
         switch type {
         case "Work":
             return workDuration
@@ -58,6 +55,10 @@ class SessionManager {
         default:
             return shortBreakDuration
         }
+    }
+
+    func getNextIntervalDuration() -> Int {
+        return getDuration(for: getCurrentSessionType())
     }
 
     private func saveHistory() {
@@ -76,7 +77,6 @@ class SessionManager {
                 self.completedSessions = count
             }
         } catch {
-            // File might not exist yet, which is fine
             self.completedSessions = 0
         }
     }
